@@ -1,0 +1,8 @@
+{
+    "recommendations": [
+        "neo4j-extensions.neo4j-for-vscode",
+        "gruntfuggly.todo-tree",
+        "dbaeumer.vscode-eslint",
+        "yoavbls.pretty-ts-errors",
+    ]
+}
