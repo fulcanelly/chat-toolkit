@@ -1,6 +1,6 @@
 import { runWithImplicitState } from "./implicit_state";
 import { allStates, StateParams, SwitchStateError } from "../state/state";
-import { commonLowLevel } from "./telegram_context";
+import { commonLowLevel } from "../telegram/context";
 
 import * as R from 'ramda';
 

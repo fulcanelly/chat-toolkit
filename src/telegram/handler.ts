@@ -1,7 +1,7 @@
 import { MiddlewareFn, Telegraf } from "telegraf";
-import * as state from "./state/state";
-import { createPrivateTelegramContext } from "./lib/telegram_context";
-import { MessageStore, MsgWithText } from "./utils/MessageStore";
+import * as state from "../state/state";
+import { createPrivateTelegramContext, DbParams } from "./context";
+import { MessageStore, MsgWithText } from "../utils/MessageStore";
 
 
 type Midlware = Parameters<Telegraf['start']>[0]
@@ -9,15 +9,15 @@ export type ExtractContext<R> = R extends MiddlewareFn<infer T> ? T : never
 export type BotContext = ExtractContext<Midlware>
 
 
-type HandlerParams<T> = {
+type HandlerParams = {
   bot: Telegraf
-  allStates: T
-  defaultState: keyof T
+  allStates: state.AllStates
+  defaultState: string
 }
 
 export type AppHandlerT = ReturnType<typeof createTelegramHandler>
 
-export function createTelegramHandler<T>(params: HandlerParams<T>) {
+export function createTelegramHandler<User>(params: HandlerParams, dbParams: DbParams<User>) {
 
   const { bot, allStates, defaultState } = params
 
@@ -25,11 +25,11 @@ export function createTelegramHandler<T>(params: HandlerParams<T>) {
   //blocking queue of messages
   // but why?
   const messageStore = new MessageStore<MsgWithText>();
- 
+
   // in case if two events for same user happen nearly at the same tame
   // to prevent running two state for one user
   const stateMutex = new Set<number>()
-  
+
   // shows running states
   const runningStates = new Map<number, Promise<void>>()
 
@@ -89,9 +89,11 @@ export function createTelegramHandler<T>(params: HandlerParams<T>) {
   }
 
   const globalContext: state.GlobalSharedAppContext = {
+
     bot,
     userContextStore: privateContextStore,
-    pendingFights: []
+
+    // pendingFights: []
   }
 
   function obtainContext(user_id: number) {
@@ -102,7 +104,7 @@ export function createTelegramHandler<T>(params: HandlerParams<T>) {
       allStates,
       defaultState,
       globalSharedAppContext: globalContext
-    })
+    }, dbParams)
   }
 
   return {
@@ -115,4 +117,10 @@ export function createTelegramHandler<T>(params: HandlerParams<T>) {
     runningStates
   }
 
+}
+
+declare module "../state/state" {
+  interface GlobalSharedAppContext {
+    bot: Telegraf
+  }
 }

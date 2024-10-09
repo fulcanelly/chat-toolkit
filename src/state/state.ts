@@ -1,24 +1,24 @@
 
 
 
-import { Ref } from "src/utils/Ref"
+import { Ref } from "../utils/Ref"
 import { runWithImplicitState } from "../lib/implicit_state"
 
-import { MessageStoreCancelationError } from "src/utils/MessageStore"
+import { MessageStoreCancelationError } from "../utils/MessageStore"
 
 
 
-export type GlobalSharedAppContext<StateT, TransactionT> = {
-  userContextStore: Map<number, Context<StateT, TransactionT>>
+export interface GlobalSharedAppContext {
+  userContextStore: Map<number, Context>
   // pendingFights: Array<OnlineFight>
   // bot: Telegraf
 }
 
 
-export type EscapeData<StateT, TransactionT> = {
+export type EscapeData = {
   // user: TelegramUserInstance
   // character?: MoscalCharacterInstance | undefined,
-  sharedCtx: GlobalSharedAppContext<StateT, TransactionT>
+  sharedCtx: GlobalSharedAppContext
 }
 
 export type Media
@@ -37,12 +37,12 @@ export type SayParams
   | undefined
 
 
-export type LowLevelAction<StateT, TransactionT> = {
+export type LowLevelAction = {
 
   say: (text: string, params?: SayParams) => Promise<void>
   expect: () => Promise<string>
   switchState: <T>(state: T, args?: SecondArgument<T>) => Promise<never>
-  escape: <T>(action: (user: EscapeData<StateT, TransactionT>) => Promise<T> | T) => Promise<T>
+  escape: <T>(action: (user: EscapeData) => Promise<T> | T) => Promise<T>
   random: () => Promise<number>
 
   _disableRecording(): Promise<void>
@@ -68,6 +68,9 @@ export const allStates = {
 }
 
 
+export interface AllStates {
+
+}
 
 export type SuggestIt<T> = {
   option: (text: string, action: () => T | Promise<T>) => SuggestIt<T>;
@@ -78,26 +81,30 @@ export type SuggestIt<T> = {
 
 
 
-export type Actions<StateT, TransactionT> = HighLevelActions & LowLevelAction<StateT, TransactionT>
+export type Actions = HighLevelActions & LowLevelAction
 
 
 
-export type StateParams<StateT, TransactionT> = Actions<StateT, TransactionT>
+export type StateParams = Actions
 
-export type State<StateT, TransactionT> = (x: StateParams<StateT, TransactionT>, args?: any) => Promise<void>
+export type State = (x: StateParams, args?: any) => Promise<void>
 
 
-export type StateLibrary<StateT, TransactionT> = { [k: string]: State<StateT, TransactionT> }
+export type StateLibrary = { [k: string]: State }
 
 
 export type SuggestItFunction = <T>(promptText: string) => SuggestIt<T>;
 
-export type RecordedEvent<StateT, TransactionT> = { eventName: keyof StateParams<StateT, TransactionT>, data: Object | undefined }
+export type RecordedEvent = { eventName: keyof StateParams, data: Object | undefined }
 
-export type Context<StateT, TransactionT> = {
-  allStates: StateLibrary<StateT, TransactionT>
+export interface TransactionT {
 
-  implemntation: StateParams<StateT, TransactionT>,
+}
+
+export type Context = {
+  allStates: AllStates
+
+  implemntation: StateParams,
 
   // currentFight?: OnlineFight,
 
@@ -105,13 +112,13 @@ export type Context<StateT, TransactionT> = {
     state?: {
       save(state: string, args: any, p?: { session: TransactionT }): Promise<void>
       current(): Promise<string | undefined>
-      currentFull(): Promise<StateT | undefined>
+      currentFull(): Promise<UserPersistedState | undefined>
       default(): string
       delete(p?: { session: TransactionT }): Promise<void>
     },
     events: {
-      save(event: RecordedEvent<StateT, TransactionT>): Promise<void>
-      loadAll(): Promise<RecordedEvent<StateT, TransactionT>[]>
+      save(event: RecordedEvent): Promise<void>
+      loadAll(): Promise<RecordedEvent[]>
       deleteAll(p?: { session: TransactionT }): Promise<void>
     }
   }
@@ -121,7 +128,7 @@ export type Context<StateT, TransactionT> = {
 }
 
 
-function makeContextRecordable<State, Transaction>(context: Context<State, Transaction>) {
+function makeContextRecordable(context: Context) {
   const originalContext = context.implemntation
   let disabled = false
 
@@ -151,7 +158,7 @@ function makeContextRecordable<State, Transaction>(context: Context<State, Trans
 }
 
 
-async function makeContextRestorable<State, Transaction>(context: Context<State, Transaction>) {
+async function makeContextRestorable(context: Context) {
   const events = [
     ...await context.manage.events.loadAll()
   ]
@@ -189,7 +196,7 @@ export class SwitchStateError extends Error {
 
 
 
-export async function executeContext<StateT extends UserPersistedState, Transaction>(context: Context<StateT, Transaction>, id?: number): Promise<void> {
+export async function executeContext<StateT extends UserPersistedState, Transaction>(context: Context, id?: number): Promise<void> {
   const found = await dispatchState(context)
   console.table(found)
   await executeState(context, found.state, found.args)
@@ -202,7 +209,6 @@ type Arguments = any
 
 export type UserPersistedState
   = {
-
     state: string
     arguments: string | undefined
 
@@ -213,8 +219,8 @@ export type UserPersistedState
 
 
 export async function dispatchState<T, StateT extends UserPersistedState, TransactionT>(
-  context: Context<StateT, TransactionT>
-): Promise<{ state: State<StateT, TransactionT>, args: Arguments }> {
+  context: Context
+): Promise<{ state: State, args: Arguments }> {
   const states = context.manage.state!
   const current = await states.currentFull()
   const stateName = current?.state!
@@ -223,30 +229,23 @@ export async function dispatchState<T, StateT extends UserPersistedState, Transa
   console.log(stateName)
   if (current) {
     return {
-      state: context.allStates[stateName] as State<StateT, TransactionT>,
+      state: context.allStates[stateName] as State,
       args: current.arguments ? JSON.parse(current.arguments) : null
     }
   } else {
     const result = states.default()
     await states.save(result, undefined)
     return {
-      state: context.allStates[result] as State<StateT, TransactionT>,
+      state: context.allStates[result] as State,
       args: undefined
     }
   }
 }
 
-export function addHighLevel<T, StateT, TransactionT>(original: StateParams<StateT, TransactionT>, mapped: Context<StateT, TransactionT>) {
+export function addHighLevel<T, StateT, TransactionT>(original: StateParams, mapped: Context) {
 
   const mappedImplementation = mapped.implemntation
 
-  async function expectOrCancellText(question: string): Promise<string | undefined> {
-    const cancellOption = 'Відміна'
-    await mappedImplementation.say(question, { keyboard: [cancellOption] })
-
-
-    return
-  }
 
   async function suggest<T extends string[]>(question: string, options: T, extra?: Media): Promise<T[number]> {
     const params = {
@@ -318,13 +317,13 @@ export function addHighLevel<T, StateT, TransactionT>(original: StateParams<Stat
   }
 }
 
-export async function simpleStateExecute<T, StateT, TransactionT>(context: Context<StateT, TransactionT>, state: State<StateT, TransactionT>, args?: Arguments): Promise<void> {
+export async function simpleStateExecute<T, StateT, TransactionT>(context: Context, state: State, args?: Arguments): Promise<void> {
 
   await runWithImplicitState(context.implemntation, state, args)
 }
 
 
-export async function executeState<T, StateT extends UserPersistedState, TransactionT>(context: Context<StateT, TransactionT>, state: State<StateT, TransactionT>, args?: Arguments): Promise<void> {
+export async function executeState<T, StateT extends UserPersistedState, TransactionT>(context: Context, state: State, args?: Arguments): Promise<void> {
   const originalImp = context.implemntation
 
   makeContextRecordable(context)
@@ -390,9 +389,12 @@ export async function executeState<T, StateT extends UserPersistedState, Transac
 
 }
 
-async function handleStateSwitch<StateT, TransactionT>(e: SwitchStateError, context: Context<StateT, TransactionT>, setStateData: (state, args) => void) {
-  const session = neogma.driver.session()
-  const transaction = await session.beginTransaction()
+async function handleStateSwitch(e: SwitchStateError, context: Context, setStateData: (state, args) => void) {
+  // throw await Promise.resolve(new Error("TODO"))
+
+  //TODO
+  // const session = neogma.driver.session()/
+  // const transaction = await session.beginTransaction()
 
   try {
 
@@ -400,20 +402,32 @@ async function handleStateSwitch<StateT, TransactionT>(e: SwitchStateError, cont
       targetState: e.stateToSwitch
     })
 
+
     await Promise.all([
-      context.manage.events.deleteAll({ session: transaction }),
-      context.manage.state?.delete({ session: transaction }),
+      context.manage.events.deleteAll(),
+      context.manage.state.delete(),
     ])
 
-    await context.manage.state?.save(e.stateToSwitch, e.state_arguments, { session: transaction }) // tests dont seem to cover this case
-
-    setStateData(context.allStates[e.stateToSwitch] as any, e.state_arguments)
-
-    await transaction.commit()
+    await context.manage.state.save(e.stateToSwitch, e.state_arguments)
   } catch (e) {
     console.error(e)
-    await transaction.rollback()
+    throw e
   }
 
-  await session.close()
+  //   await Promise.all([
+  //     context.manage.events.deleteAll({ session: transaction }),
+  //     context.manage.state?.delete({ session: transaction }),
+  //   ])
+
+  //   await context.manage.state?.save(e.stateToSwitch, e.state_arguments, { session: transaction }) // tests dont seem to cover this case
+
+  //   setStateData(context.allStates[e.stateToSwitch] as any, e.state_arguments)
+
+  //   await transaction.commit()
+  // } catch (e) {
+  //   console.error(e)
+  //   await transaction.rollback()
+  // }
+
+  // await session.close()
 }

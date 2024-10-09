@@ -1,7 +1,6 @@
 import { Markup, Telegraf } from "telegraf";
-import { Context, GlobalSharedAppContext, LowLevelAction, RecordedEvent, SayParams, StateLibrary, SuggestIt, SwitchStateError } from "../state/state";
+import { AllStates, Context, GlobalSharedAppContext, LowLevelAction, RecordedEvent, SayParams, StateLibrary, SuggestIt, SwitchStateError } from "../state/state";
 import { MessageStore, MsgWithText } from "@/utils/MessageStore";
-import { defaultNeo4jTelegramManageImplemenation } from "../state/states_n_events";
 import * as R from "ramda";
 // import { MarkupType, mediaSender } from "./media-sender";
 
@@ -19,7 +18,7 @@ import * as R from "ramda";
 export type MarkupType = Parameters<Telegraf['telegram']['sendPhoto']>[2]
 
 
-export function commonLowLevel<StateT, TransactionT>(): LowLevelAction<StateT, TransactionT> {
+export function commonLowLevel<StateT, TransactionT>(): LowLevelAction {
   return {
     say(text: string, params?: SayParams): Promise<void> {
       throw new Error("Function not implemented.");
@@ -52,35 +51,34 @@ type TelegramParams = {
 
 }
 
-type TelegramContextParams<StateT, TransactionT> = {
+
+type TelegramContextParams = {
   bot: Telegraf
   user_id: number
-  // allStates: T
+  allStates: AllStates,
   messageStore: MessageStore<MsgWithText>
-  // defaultState: keyof T
-  globalSharedAppContext: GlobalSharedAppContext<StateT, TransactionT>
+  defaultState: string
+  globalSharedAppContext: GlobalSharedAppContext
 }
 
 
-export type DbParams<User, StateT, TransactionT> = {
+export type DbParams<User> = {
   findOrCreateUser(user_id: number): Promise<User>
-
-  stateManager: (params: { currentUser: User, defaultState: string }) => Context<StateT, TransactionT>['manage']
+  // switchState(): Promise<void>
+  stateManager: (params: { currentUser: User, defaultState: string }) => Context['manage']
 }
 
 
-function defaultPrismaStateManagerImplementation() {
-
-}
-
-export async function createPrivateTelegramContext<StateT, TransactionT>({
+export async function createPrivateTelegramContext<User>({
   bot, user_id,
-  //  allStates,
+  allStates,
   messageStore,
-  // defaultState,
+  defaultState,
   globalSharedAppContext
-}: TelegramContextParams<StateT, TransactionT>,
-  { findOrCreateUser, stateManager }: DbParams<{}, StateT, TransactionT>): Promise<Context<StateT, TransactionT>> {
+}: TelegramContextParams,
+  { findOrCreateUser, stateManager }: DbParams<User>): Promise<Context> {
+
+  console.log({ findOrCreateUser })
 
   const currentUser = await findOrCreateUser(user_id)
   // const character = await currentUser._character().first()
@@ -125,11 +123,11 @@ export async function createPrivateTelegramContext<StateT, TransactionT>({
     sharedCtx: globalSharedAppContext
   }
 
-  const escape: LowLevelAction<StateT, TransactionT>['escape'] = async callback => {
+  const escape: LowLevelAction['escape'] = async callback => {
     return callback(escapeCtx)
   }
 
-  const implemntation: LowLevelAction<StateT, TransactionT> = {
+  const implemntation: LowLevelAction = {
     ...commonLowLevel(),
     expect,
     say,
@@ -137,11 +135,11 @@ export async function createPrivateTelegramContext<StateT, TransactionT>({
   }
 
   return {
-    allStates: undefined as any, //TODO
-    
+    allStates, //TODO
+
     manage: stateManager({
       currentUser,
-      defaultState: undefined as any //TODO
+      defaultState, //TODO
     }),
 
     implemntation: implemntation as any
