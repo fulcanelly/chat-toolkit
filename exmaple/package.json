@@ -1,0 +1,11 @@
+{
+  "name": "exmaple",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "5.20.0",
+    "prisma": "^5.20.0",
+    "tsx": "^4.19.1"
+  }
+}
