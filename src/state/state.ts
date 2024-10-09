@@ -402,11 +402,8 @@ async function handleStateSwitch(e: SwitchStateError, context: Context, setState
       targetState: e.stateToSwitch
     })
 
-
-    await Promise.all([
-      context.manage.events.deleteAll(),
-      context.manage.state.delete(),
-    ])
+    await context.manage.events.deleteAll()
+    await context.manage.state.delete()
 
     await context.manage.state.save(e.stateToSwitch, e.state_arguments)
   } catch (e) {
