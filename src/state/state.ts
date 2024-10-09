@@ -401,6 +401,7 @@ async function handleStateSwitch(e: SwitchStateError, context: Context, setState
     await context.manage.state.delete()
 
     await context.manage.state.save(e.stateToSwitch, e.state_arguments)
+    setStateData(context.allStates[e.stateToSwitch] as any, e.state_arguments)
   } catch (e) {
     console.error(e)
     throw e
