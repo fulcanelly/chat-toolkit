@@ -1,9 +1,9 @@
 {
   "name": "chat-toolkit",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "",
   "author": "",
-  "private": true,
+  "private": false,
   "license": "UNLICENSED",
   "main": "src/index.ts",
   "scripts": {
