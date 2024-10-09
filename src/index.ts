@@ -1,5 +1,5 @@
 import { _disableRecording, _onRestoreDoRun, escape_, expect_, random, say, suggest, suggestIt, switchState } from './lib/implicit_state'
-import { AllStates, Context } from './state/state'
+import { AllStates, Context, EscapeData } from './state/state'
 import { createPrivateTelegramContext } from './telegram/context'
 import { createTelegramHandler } from './telegram/handler'
 
@@ -23,5 +23,6 @@ export {
 }
 
 export {
-  AllStates
+  AllStates,
+  EscapeData,
 }
