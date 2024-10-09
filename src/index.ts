@@ -1,16 +1,27 @@
-// import * as tctx from './telegram/context'
-import { Context } from './state/state'
+import { _disableRecording, _onRestoreDoRun, escape_, expect_, random, say, suggest, suggestIt, switchState } from './lib/implicit_state'
+import { AllStates, Context } from './state/state'
 import { createPrivateTelegramContext } from './telegram/context'
 import { createTelegramHandler } from './telegram/handler'
 
-
-
 export { Context }
 
-export interface Test {
-  a: number
+export {
+  createPrivateTelegramContext,
+  createTelegramHandler
 }
 
-// export const createPrivateTelegramContext = tctx.createPrivateTelegramContext
+export {
+  suggestIt,
+  _disableRecording,
+  _onRestoreDoRun,
+  escape_,
+  say,
+  random,
+  suggest,
+  switchState,
+  expect_
+}
 
-export { createPrivateTelegramContext,  createTelegramHandler } 
+export {
+  AllStates
+}

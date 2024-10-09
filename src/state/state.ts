@@ -41,7 +41,7 @@ export type LowLevelAction = {
 
   say: (text: string, params?: SayParams) => Promise<void>
   expect: () => Promise<string>
-  switchState: <T>(state: T, args?: SecondArgument<T>) => Promise<never>
+  switchState: <T extends keyof AllStates>(state: T, args?: Parameters<AllStates[T]>[0]) => Promise<never>
   escape: <T>(action: (user: EscapeData) => Promise<T> | T) => Promise<T>
   random: () => Promise<number>
 
@@ -63,10 +63,6 @@ export type HighLevelActions = {
 
 //todo make it more generic not so coupled
 
-export const allStates = {
-
-}
-
 
 export interface AllStates {
 
@@ -76,7 +72,6 @@ export type SuggestIt<T> = {
   option: (text: string, action: () => T | Promise<T>) => SuggestIt<T>;
   extra: (e: Media) => SuggestIt<T>
   exec: () => Promise<T>;
-
 };
 
 

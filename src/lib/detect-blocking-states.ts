@@ -1,5 +1,5 @@
 import { runWithImplicitState } from "./implicit_state";
-import { allStates, StateParams, SwitchStateError } from "../state/state";
+import { StateParams, SwitchStateError } from "../state/state";
 import { commonLowLevel } from "../telegram/context";
 
 import * as R from 'ramda';
@@ -10,7 +10,7 @@ function blockingStateDetectionParams(): StateParams {
   return {
     ...commonLowLevel(),
 
-    async say(): Promise<void> {},
+    async say(): Promise<void> { },
 
     escape() {
       const proxy = new Proxy({}, {
@@ -45,16 +45,6 @@ function blockingStateDetectionParams(): StateParams {
   } as StateParams
 }
 
-const fixtures = {
-  requiredArgumentsByState: {
-    itemSoldState: {
-      type: 'drugs',
-      name: 'WEED',
-      count: 8,
-      pricePerOne: 13
-    }
-  }
-}
 
 // what is simple state ? 
 // its state that is non blocking (in own sense)
@@ -83,13 +73,28 @@ export const stateTypes = {
   simple: new Array<string>(),
 }
 
-export async function detectBlockingStates() {
-  
+
+
+// example
+const fixtures = {
+  requiredArgumentsByState: {
+    itemSoldState: {
+
+      count: 8,
+      pricePerOne: 13
+    }
+  }
+}
+
+// TODO
+export async function detectBlockingStates(allStates: Object) {
+
   console.log('Trying to detect simple states')
   const params = blockingStateDetectionParams()
   for (const stateName in allStates) {
     const state = allStates[stateName]
-    const args = fixtures.requiredArgumentsByState[stateName] ?? {}
+    // const args = fixtures.requiredArgumentsByState[stateName] ?? {}
+    const args = {}
 
     try {
       // logger.silly(stateName)
@@ -98,8 +103,8 @@ export async function detectBlockingStates() {
       if (e instanceof BlockingActionDetectedError) {
         stateTypes.blocking.push(stateName)
 
-      // } else if (e instanceof SwitchStateError) {
-      //   stateTypes.simple.push(stateName)
+        // } else if (e instanceof SwitchStateError) {
+        //   stateTypes.simple.push(stateName)
 
       } else {
         stateTypes.unknown.push(stateName)
