@@ -15,7 +15,7 @@ export interface GlobalSharedAppContext {
 }
 
 
-export type EscapeData = {
+export interface EscapeData {
   // user: TelegramUserInstance
   // character?: MoscalCharacterInstance | undefined,
   sharedCtx: GlobalSharedAppContext

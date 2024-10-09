@@ -55,6 +55,15 @@ declare module 'chat-toolkit' {
 }
 ```
 
+### Adjusting escape ctx 
+```ts
+declare module 'chat-toolkit' {
+  interface EscapeData {
+    user: User
+  }
+}
+```
+
 
 ## TODO 
 - [ ] Notifications

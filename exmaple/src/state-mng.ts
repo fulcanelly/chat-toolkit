@@ -1,7 +1,7 @@
 import { prisma } from '.';
 import { User } from "@prisma/client";
 import { Context } from "chat-toolkit";
-import { RecordedEvent, TransactionT } from '../../src/state/state';
+import { RecordedEvent, TransactionT } from 'chat-toolkit/src/state/state';
 
 
 
