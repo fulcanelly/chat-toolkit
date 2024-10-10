@@ -5,7 +5,7 @@ import { Ref } from "../utils/Ref"
 import { runWithImplicitState } from "../lib/implicit_state"
 
 import { MessageStoreCancelationError } from "../utils/MessageStore"
-import { superjson } from "@/lib/superjson"
+import { superjson } from "../lib/superjson"
 
 
 
