@@ -5,6 +5,7 @@ import { Ref } from "../utils/Ref"
 import { runWithImplicitState } from "../lib/implicit_state"
 
 import { MessageStoreCancelationError } from "../utils/MessageStore"
+import { superjson } from "@/lib/superjson"
 
 
 
@@ -225,7 +226,7 @@ export async function dispatchState<T, StateT extends UserPersistedState, Transa
   if (current) {
     return {
       state: context.allStates[stateName] as State,
-      args: current.arguments ? JSON.parse(current.arguments) : null
+      args: current.arguments ? superjson.parse(current.arguments) : null
     }
   } else {
     const result = states.default()
@@ -334,7 +335,7 @@ export async function executeState<T, StateT extends UserPersistedState, Transac
       const state = await context.manage.state?.currentFull()
 
       if (state?.on_return_switch_to) {
-        const args = state.on_return_switch_args ? JSON.parse(state.on_return_switch_args) : undefined
+        const args = state.on_return_switch_args ? superjson.parse(state.on_return_switch_args) : undefined
 
         throw new SwitchStateError(state.on_return_switch_to, args)
       }
@@ -368,7 +369,7 @@ export async function executeState<T, StateT extends UserPersistedState, Transac
         const state = await context.manage.state?.currentFull()
 
         if (state?.on_return_switch_to) {
-          const switchTo = new SwitchStateError(state.on_return_switch_to, JSON.parse(state.on_return_switch_args ?? '{}'))
+          const switchTo = new SwitchStateError(state.on_return_switch_to, superjson.parse(state.on_return_switch_args ?? '{}'))
           await handleStateSwitch(switchTo, context, (state, arg) => {
             currentState = state
             args = arg
