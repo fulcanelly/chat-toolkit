@@ -1,4 +1,4 @@
-import { superjson } from "@/lib/superjson";
+import { superjson } from "../lib/superjson";
 import { PrismaClient, User } from "@prisma/client";
 import { Context } from "chat-toolkit";
 import { RecordedEvent, TransactionT } from 'chat-toolkit/src/state/state';
