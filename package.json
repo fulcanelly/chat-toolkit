@@ -1,5 +1,8 @@
 {
   "name": "chat-toolkit",
+  "bin": {
+    "setup": "./setup.sh"
+  },
   "version": "0.2.5",
   "description": "",
   "author": "",
