@@ -24,6 +24,9 @@ export async function mainState() {
   await say("Reuslt is " + (a + b))
   
   await switchState('mainState')
+  // or 
+  await stateSwitcher.mainState()
+
 }
 ```
 
@@ -36,8 +39,18 @@ declare module 'chat-toolkit' {
   }
 }
 ```
+## avaliable actions
 
-
+  suggestIt,
+  _disableRecording,
+  _onRestoreDoRun,
+  escape_,
+  say,
+  random,
+  suggest,
+  switchState,
+  expect_
+  
 # Modifing actions 
 
 # TODO
