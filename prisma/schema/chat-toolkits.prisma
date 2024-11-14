@@ -1,0 +1,35 @@
+
+model User {
+  id         BigInt @id
+  first_name String
+  state      State?
+}
+
+model State {
+  id Int @id @default(autoincrement())
+
+  state     String
+  arguments String?
+
+  on_return_switch_to   String?
+  on_return_switch_args String?
+
+  created_at DateTime
+
+  user   User    @relation(fields: [userId], references: [id])
+  events Event[]
+
+  userId BigInt @unique
+}
+
+model Event {
+  id Int @id @default(autoincrement())
+
+  eventName String
+  data      String?
+
+  created_at DateTime
+
+  State   State? @relation(fields: [stateId], references: [id])
+  stateId Int?
+}
