@@ -1,10 +1,28 @@
 # What is it ?
 
-it's library for easier chat-bot state managment/peristion
+it's library/toolkit for easier chat-bot state managment/persistion
 
 currently only telegram API supported, further extension for discrod API possible
 
-## Adding new state
+
+# Content tree (TODO) 
+  - How to use
+    - Adding new state
+    - Set default / Main state
+  - Setup
+    - Ensure prisma config and file structure is right
+    - Generate models
+    - Apply prisma migrations
+    - Adjust code to supply events to handler
+  - Actions
+    - Avaliable actions
+    - Modifing actions 
+  - Other features 
+    - Notification / Interrupt state (TODO)
+    - 
+    - Adjusting global state
+
+## Adding new state 
 
 
 Describe state using actions like `say`, `expect`, `switchState` and others
@@ -39,7 +57,75 @@ declare module 'chat-toolkit' {
   }
 }
 ```
-## avaliable actions
+
+## Default / Main state
+
+// TODO 
+
+## Setup 
+Currently this npm relies on prisma (in future planned ability to chose over other orms) 
+and supposes you have enabled your `prismaSchemaFolder` in `schema.prisma` and it lies in `prisma/schema/` folder
+
+### Ensure prisma config and file structure is right
+```prisma
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["typedSql", "prismaSchemaFolder"]
+}
+```
+
+### Generate models 
+Then you need to run 
+
+```bash
+npx chat-toolkit setup 
+```
+which would create needed models in your project folder
+
+### Apply prisma migrations
+
+After that you'll have to apply migration migrate 
+
+```bash
+yarn prisma migrate dev  --name add_chat_toolkit_models
+```
+### Adjust code to supply events to handler
+
+Example with Telegraf:
+
+```js 
+
+const bot = new Telegraf(process.env.TG_TOKEN)
+const prisma = new PrismaClient()
+
+const dbParams = {
+  findOrCreateUser: findOrCreateUserPrisma(prisma),
+  stateManager: defaultPrismaStateManagerImplementation(prisma)
+}
+
+const allStates = {
+  mainState
+}
+
+const handler
+  = createTelegramHandler({
+    bot,
+    allStates,
+    defaultState: 'mainState'
+  }, dbParams)
+
+
+bot.start(async ctx => {
+  await handler.handlePrivateMessage(ctx, true)
+})
+
+
+bot.on('message', async ctx => {
+  await handler.handlePrivateMessage(ctx as any, false)
+})
+
+```
+## Avaliable actions
 
   suggestIt,
   _disableRecording,
@@ -54,6 +140,11 @@ declare module 'chat-toolkit' {
 # Modifing actions 
 
 # TODO
+
+
+# Notification / Interrupt state
+
+# TODO 
 
 ### Adjusting global state
 
@@ -81,3 +172,4 @@ declare module 'chat-toolkit' {
 ## TODO 
 - [ ] Notifications
 - [ ] Custom expects
+- [ ] GC
