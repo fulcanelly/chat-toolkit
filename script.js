@@ -23,6 +23,7 @@ const filesToCopy = [
   'chat-toolkits.prisma',
 ];
 
+fs.mkdirSync(targetPath, { recursive: true });
 
 filesToCopy.forEach(file => {
   const sourceFile = path.join(sourcePath, file);
