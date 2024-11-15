@@ -5,7 +5,7 @@ it's library/toolkit for easier chat-bot state managment/persistion
 currently only telegram API supported, further extension for discrod API possible
 
 
-# Content tree (TODO) 
+# Content tree
   - How to use
     - [Adding new state](#adding-new-state)
     - Set default / Main state (TODO)
@@ -60,13 +60,28 @@ declare module 'chat-toolkit' {
 
 ## Default / Main state
 
-// TODO 
+You need to specify what is the entry point state and what should run first
+
+that's done at setup, see [this](#adjust-code-to-supply-events-to-handler) for details
+
+```js
+const handler
+  = createTelegramHandler({
+    bot,
+    allStates,
+    defaultState: 'mainState'
+  }, dbParams)
+```
+
 
 ## Setup 
-Currently this npm relies on prisma (in future planned ability to chose over other orms) 
-and supposes you have enabled your `prismaSchemaFolder` in `schema.prisma` and it lies in `prisma/schema/` folder
 
 ### Ensure prisma config and file structure is right
+
+Currently this npm relies on prisma (in future planned ability to chose over other orms) 
+and it assumes you have enabled your `prismaSchemaFolder` in `schema.prisma` and it lies in `prisma/schema/` folder
+
+
 ```prisma
 generator client {
   provider        = "prisma-client-js"
@@ -93,14 +108,16 @@ yarn prisma migrate dev  --name add_chat_toolkit_models
 
 Example with Telegraf:
 
-```js 
+```ts
 
 const bot = new Telegraf(process.env.TG_TOKEN)
 const prisma = new PrismaClient()
 
 const dbParams = {
-  findOrCreateUser: findOrCreateUserPrisma(prisma),
-  stateManager: defaultPrismaStateManagerImplementation(prisma)
+  findOrCreateUser: findOrCreateUserPrisma(prisma as any), 
+  stateManager: defaultPrismaStateManagerImplementation(prisma as any),
+  // unfrotunatelly cast to any needed, since local prisma is not the same as chat-toolkits 
+  // right now idk how to avoid this but it's works just fine
 }
 
 const allStates = {
@@ -173,3 +190,5 @@ declare module 'chat-toolkit' {
 - [ ] Notifications
 - [ ] Custom expects
 - [ ] GC
+- [ ] Detect long states
+- [ ] Error handling strategy
