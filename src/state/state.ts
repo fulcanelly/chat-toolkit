@@ -6,6 +6,8 @@ import { runWithImplicitState } from "../lib/implicit_state"
 
 import { MessageStoreCancelationError } from "../utils/MessageStore"
 import { superjson } from "../lib/superjson"
+import { Message } from "telegraf/typings/core/types/typegram"
+import { User } from "@prisma/client"
 
 
 
@@ -17,7 +19,7 @@ export interface GlobalSharedAppContext {
 
 
 export interface EscapeData {
-  // user: TelegramUserInstance
+  user: User
   // character?: MoscalCharacterInstance | undefined,
   sharedCtx: GlobalSharedAppContext
 }
@@ -41,6 +43,7 @@ export type SayParams
 export type LowLevelAction = {
 
   say: (text: string, params?: SayParams) => Promise<void>
+  expectAny: <T>(matcher: (message: Message) => T) => Promise<T>
   expect: () => Promise<string>
   switchState: <T extends keyof AllStates>(state: T, args?: Parameters<AllStates[T]>[0]) => Promise<never>
   escape: <T>(action: (user: EscapeData) => Promise<T> | T) => Promise<T>
@@ -259,6 +262,7 @@ export function addHighLevel<T, StateT, TransactionT>(original: StateParams, map
         if (options.includes(result)) {
           return result
         } else {
+          //TODO passing string here
           await original.say('there is no such option', {
             keyboard: options
           }) // TODO localize

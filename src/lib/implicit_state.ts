@@ -18,6 +18,7 @@ export const random: StateParams['random'] = makeImplicitProxy('random')
 export const suggest: StateParams['suggest'] = makeImplicitProxy('suggest')
 export const switchState: StateParams['switchState'] = makeImplicitProxy('switchState')
 export const expect_: StateParams['expect'] = makeImplicitProxy('expect')
+export const expectAny: StateParams['expectAny'] = makeImplicitProxy('expectAny')
 
 
 export async function runWithImplicitState(params: StateParams, state: (...args: any[]) => Promise<void>, args: any) {

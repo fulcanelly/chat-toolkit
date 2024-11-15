@@ -2,6 +2,7 @@ import { Markup, Telegraf } from "telegraf";
 import { AllStates, Context, GlobalSharedAppContext, LowLevelAction, RecordedEvent, SayParams, StateLibrary, SuggestIt, SwitchStateError } from "../state/state";
 import { MessageStore, MsgWithText } from "@/utils/MessageStore";
 import * as R from "ramda";
+import { Message } from "telegraf/typings/core/types/typegram";
 // import { MarkupType, mediaSender } from "./media-sender";
 
 
@@ -21,6 +22,10 @@ export type MarkupType = Parameters<Telegraf['telegram']['sendPhoto']>[2]
 export function commonLowLevel<StateT, TransactionT>(): LowLevelAction {
   return {
     say(text: string, params?: SayParams): Promise<void> {
+      throw new Error("Function not implemented.");
+    },
+
+    expectAny<T>(x: (a) => T): Promise<T> {
       throw new Error("Function not implemented.");
     },
 
@@ -83,6 +88,20 @@ export async function createPrivateTelegramContext<User>({
   const currentUser = await findOrCreateUser(user_id)
   // const character = await currentUser._character().first()
 
+  async function expectAny<T>(matcher: (it: Message) => T | undefined): Promise<T> {
+    do {
+      const message = await messageStore.getMessage(user_id)
+
+      const matched = matcher(message)
+      if (matched) {
+        return matched
+      } else {
+        // TODO add warning 
+      }
+
+    } while (true)
+  }
+
   async function expect(): Promise<string> {
     do {
       const message = await messageStore.getMessage(user_id)
@@ -117,8 +136,9 @@ export async function createPrivateTelegramContext<User>({
     }
   }
 
+  // TODO any -> T
   const escapeCtx = {
-    user: currentUser,
+    user: currentUser as any,
     // character,
     sharedCtx: globalSharedAppContext
   }
@@ -131,7 +151,8 @@ export async function createPrivateTelegramContext<User>({
     ...commonLowLevel(),
     expect,
     say,
-    escape
+    escape,
+    expectAny,
   }
 
   return {
