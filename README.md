@@ -7,13 +7,13 @@ currently only telegram API supported, further extension for discrod API possibl
 
 # Content tree (TODO) 
   - How to use
-    - Adding new state
-    - Set default / Main state
-  - Setup
-    - Ensure prisma config and file structure is right
-    - Generate models
-    - Apply prisma migrations
-    - Adjust code to supply events to handler
+    - [Adding new state](#adding-new-state)
+    - Set default / Main state (TODO)
+  - [Setup](#setup)
+    - [Ensure prisma config and file structure is right](#ensure-prisma-config-and-file-structure-is-right)
+    - [Generate models](#generate-models)
+    - [Apply prisma migrations](#apply-prisma-migrations)
+    - [Adjust code to supply events to handler](#adjust-code-to-supply-events-to-handler)
   - Actions
     - Avaliable actions
     - Modifing actions 
