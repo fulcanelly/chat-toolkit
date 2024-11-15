@@ -8,18 +8,20 @@ currently only telegram API supported, further extension for discrod API possibl
 # Content tree
   - How to use
     - [Adding new state](#adding-new-state)
-    - Set default / Main state (TODO)
+    - [Set default / Main state](#default--main-state)
   - [Setup](#setup)
     - [Ensure prisma config and file structure is right](#ensure-prisma-config-and-file-structure-is-right)
     - [Generate models](#generate-models)
     - [Apply prisma migrations](#apply-prisma-migrations)
     - [Adjust code to supply events to handler](#adjust-code-to-supply-events-to-handler)
+  - How it works
+    - How changes in state handled 
   - Actions
     - Avaliable actions
     - Modifing actions 
   - Other features 
     - Notification / Interrupt state (TODO)
-    - 
+    - [Inline keyboard handler](#inline-keyboard-handler) 
     - Adjusting global state
 
 ## Adding new state 
@@ -162,6 +164,78 @@ bot.on('message', async ctx => {
 # Notification / Interrupt state
 
 # TODO 
+
+# Inline keyboard handler 
+
+Suppose case when you need inline keyboard for example [like, dislike]
+
+then each button should execute some kind of logic 
+
+in this case you can get use of `createCallbackHandle`:
+
+```ts
+await bot.sendMessage('you liked that post?', {
+  reply_markup: { 
+    inline_keyboard: [[
+      {
+        text: "Like",
+        callback_data: await recordingObject.like({post_id: post.id}),
+      },
+      {
+        text: "Dislike",
+        callback_data: await recordingObject.dislike({post_id: post.id}),
+      }
+    ]]
+  }
+}) 
+```
+where `recordingObject` would be defined like this:
+```ts
+const recordingObject = createCallbackHandle({
+  namespace: 'post-likes',
+  handler: ctx => ({
+    async like({post_id}: { post_id: number }) {
+      const user = await User.find(ctx.from.id)
+      await Post.find(post_id).likeBy(user)
+      await ctx.editMessageText //...
+    },
+
+    dislike({post_id}: { post_id: number }) {
+      const user = await User.find(ctx.from.id)
+      await Post.find(post_id).likeBy(user)
+      await ctx.editMessageText //...
+    }
+  })
+}) 
+```
+
+To use this you need to enable handler
+```ts
+const redis = new Redis() // from ioredis npm
+const bot = new Telegraf(process.env.TG_TOKEN)
+
+/// ...
+
+export const { setupCallbackHandler, createCallbackHandle }
+ = createRedisInlineKeyboardHandler({
+  redis,
+  projectName: 'mybot', 
+  ivalidateIn: duration(1, 'day'),
+})
+// ...
+setupCallbackHandler(bot)
+
+``` 
+ 
+
+Each call to recordingObject generates a UUID that is stored in `callback_data` on the Telegram side.
+When a button is pressed, the corresponding function is invoked. 
+ 
+On our end, the arguments for the handler function are stored 
+in **Redis** under the key `${projectName}:callbackquery:${uuid}` for 24 hours 
+(this is the default duration and covers 99% of use cases).
+
+
 
 ### Adjusting global state
 
