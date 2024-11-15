@@ -141,20 +141,58 @@ bot.start(async ctx => {
 
 bot.on('message', async ctx => {
   await handler.handlePrivateMessage(ctx as any, false)
-})
+}) 
 
 ```
-## Avaliable actions
+## Actions
 
-  suggestIt,
-  _disableRecording,
-  _onRestoreDoRun,
-  escape_,
-  say,
-  random,
-  suggest,
-  switchState,
-  expect_
+### Avaliable actions
+```hs
+say :: String -> Effect ()
+```
+^ Just sends text message to user
+
+
+```hs
+expect_ :: () -> Effect (String)
+```
+^ Expects text message from user 
+
+```hs
+expectAny :: (Message -> a) -> Effect a 
+```
+^ In case if if need to wait for specific user message or combined
+
+for example
+```ts
+  await expectAny(msg => {
+    if ('photo' in msg) {
+      return msg.photo[0]
+    }
+    if ('text' in msg) {
+      return msg.text
+    }
+  })
+```
+
+
+```hs
+random :: () -> Effect (Number)
+``` 
+^ since states can do anything it's better not to use Math.random directly so it's just wrapper over it (needed for restoring state)
+
+
+#### TODO:
+suggest 
+
+suggestIt
+
+_disableRecording
+_onRestoreDoRun
+  
+
+switchState
+escape_
   
 # Modifing actions 
 
@@ -221,7 +259,7 @@ export const { setupCallbackHandler, createCallbackHandle }
   redis,
   projectName: 'mybot', 
   ivalidateIn: duration(1, 'day'),
-})
+ })
 // ...
 setupCallbackHandler(bot)
 
