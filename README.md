@@ -104,7 +104,7 @@ which would create needed models in your project folder
 After that you'll have to apply migration migrate 
 
 ```bash
-yarn prisma migrate dev  --name add_chat_toolkit_models
+yarn prisma migrate dev --name add_chat_toolkit_models
 ```
 ### Adjust code to supply events to handler
 
@@ -165,14 +165,14 @@ expectAny :: (Message -> a) -> Effect a
 
 for example
 ```ts
-  await expectAny(msg => {
-    if ('photo' in msg) {
-      return msg.photo[0]
-    }
-    if ('text' in msg) {
-      return msg.text
-    }
-  })
+await expectAny(msg => {
+  if ('photo' in msg) {
+    return msg.photo[0]
+  }
+  if ('text' in msg) {
+    return msg.text
+  }
+})
 ```
 
 
@@ -254,13 +254,17 @@ const bot = new Telegraf(process.env.TG_TOKEN)
 
 /// ...
 
-export const { setupCallbackHandler, createCallbackHandle }
- = createRedisInlineKeyboardHandler({
+export const { 
+  setupCallbackHandler, 
+  createCallbackHandle,
+ } = createRedisInlineKeyboardHandler({
   redis,
   projectName: 'mybot', 
   ivalidateIn: duration(1, 'day'),
  })
+
 // ...
+
 setupCallbackHandler(bot)
 
 ``` 
