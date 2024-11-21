@@ -54,7 +54,7 @@ export function createRedisInlineKeyboardHandler({
   }
 
   async function executeByUUID(uuid: string, ctx: ExtractContext<ActionCtx>, object: object) {
-    const data = await redis.get(`watermark:callbackquery:${uuid}`)
+    const data = await redis.get(`${projectName}:callbackquery:${uuid}`)
     if (!data) {
       return //TODO handler of unknown button
     }
