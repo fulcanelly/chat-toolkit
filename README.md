@@ -1,4 +1,11 @@
-# What is it ?
+# Chat toolkit 
+
+![GitHub Tag](https://img.shields.io/github/v/tag/fulcanelly/chat-toolkit)
+<a href="https://www.npmjs.com/package/chat-toolkit"><img alt="NPM Downloads" src="https://img.shields.io/npm/dy/chat-toolkit?link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2Fchat-toolkit"></a>
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/fulcanelly/chat-toolkit/linter.yml?branch=master)
+
+
+### What is it ?
 
 it's library/toolkit for easier chat-bot state managment/persistion
 
