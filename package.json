@@ -9,6 +9,18 @@
   "private": false,
   "license": "UNLICENSED",
   "main": "src/index.ts",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "./dist"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+  },
+
   "scripts": {
     "build": "tsup",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -41,6 +53,7 @@
     "tsup": "^8.3.5",
     "tsx": "^4.19.2"
   },
+
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",

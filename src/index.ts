@@ -5,6 +5,9 @@ import { AllStates, Context, EscapeData } from './state/state'
 import { createPrivateTelegramContext } from './telegram/context'
 import { createTelegramHandler } from './telegram/handler'
 
+export * from './lib/inline-cb-handler'
+export * from './lib/implicit_state'
+
 export { Context }
 
 export {
