@@ -3,7 +3,7 @@
   "bin": {
     "setup": "./script.js"
   },
-  "version": "0.2.11",
+  "version": "0.2.12",
   "description": "",
   "author": "",
   "private": false,
@@ -52,7 +52,6 @@
     "tsup": "^8.3.5",
     "tsx": "^4.19.2"
   },
-
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
