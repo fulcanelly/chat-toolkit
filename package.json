@@ -18,9 +18,8 @@
     ".": {
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
-    },
+    }
   },
-
   "scripts": {
     "build": "tsup",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
